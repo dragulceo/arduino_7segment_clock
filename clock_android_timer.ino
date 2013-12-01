@@ -43,9 +43,8 @@ int LIGHTS[NUMBERS][SEGMENTS] = {
   {HIGH, HIGH, HIGH,  LOW,  LOW, HIGH, HIGH}  //9
 };
 
-void showNumber(int digitIndex, int number) {
-  //activate digit
-  int *lights = LIGHTS[number];
+
+void showDigit(int digitIndex) {
   int i;
   int value;
   for(i = 0; i < DIGITS; i++) {
@@ -56,7 +55,12 @@ void showNumber(int digitIndex, int number) {
     }
     digitalWrite(DIGIT_PINS[i], value);
   }
-  
+}
+
+void showNumber(int digitIndex, int number) {
+  //activate digit
+  int *lights = LIGHTS[number];
+  showDigit(digitIndex);
   for(int i = 0; i < SEGMENTS; i++) {
     digitalWrite(LED7_PINS[i], lights[i]);
   }
@@ -64,14 +68,7 @@ void showNumber(int digitIndex, int number) {
 
 void showLedAtIndexOnDigitAtIndex(int ledIndex, int digitIndex) {
   int i;
-  for(i = 0; i < DIGITS; i++) {
-    if(i != digitIndex) {
-      digitalWrite(DIGIT_PINS[i], HIGH);
-    } else {
-      digitalWrite(DIGIT_PINS[digitIndex], LOW);     
-    }
-  }
-  
+  showDigit(digitIndex);
   for(i = 0; i < SEGMENTS; i++) {
     if(i != ledIndex) {
       digitalWrite(LED7_PINS[i], LOW);

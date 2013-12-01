@@ -1,7 +1,7 @@
-//#define TEST false
+//#define TEST true
 
 #ifdef TEST
-  #define DISPLAY_INTERVAL 50
+  #define DISPLAY_INTERVAL 300
 #else
   #define TEST false
   #define DISPLAY_INTERVAL 5

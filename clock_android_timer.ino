@@ -98,22 +98,20 @@ int crtLed = 0;
 unsigned long allMillis = (unsigned long)(START_HOUR * SECONDS_PER_HOUR + START_MINUTE * SECONDS_PER_MINUTE + START_SECOND) * 1000;
 unsigned long prevMillis = millis();
 
-unsigned long prevTime = 0;
-void updateTime(unsigned long crtMillis) {
-  //TODO optimize by incrementing instead of recalculating
-  unsigned long currentTime = (unsigned long) crtMillis / 1000;
+void updateTime(unsigned long currentTime) {
   unsigned long hours = 0;
   unsigned long minutes = 0;
-  //if time changed update array
-  if (prevTime != currentTime) {
-      hours = (unsigned long)currentTime / SECONDS_PER_HOUR;
-      minutes = (unsigned long)(currentTime - hours * SECONDS_PER_HOUR) / SECONDS_PER_MINUTE;
-      crtTime[0] = (hours / 10) % 10; 
-      crtTime[1] = hours % 10;
-      crtTime[2] = (minutes / 10) % 10;
-      crtTime[3] = minutes % 10;
-      prevTime = currentTime;
-      //crtTime[0] = currentTime % 10;
+  unsigned long seconds = 0;
+  hours = (unsigned long) currentTime / SECONDS_PER_HOUR;
+  minutes = (unsigned long) (currentTime - (unsigned long) hours * SECONDS_PER_HOUR) / SECONDS_PER_MINUTE;
+  seconds = (unsigned long) (currentTime -  (unsigned long) hours * SECONDS_PER_HOUR - (unsigned long) minutes * SECONDS_PER_MINUTE);
+  crtTime[0] = (hours / 10) % 10; 
+  crtTime[1] = hours % 10;
+  crtTime[2] = (minutes / 10) % 10;
+  crtTime[3] = minutes % 10;
+  crtTime[4] = (seconds / 10) % 10;
+  crtTime[5] = seconds % 10;
+}
   }
 }
 

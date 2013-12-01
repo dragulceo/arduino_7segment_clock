@@ -3,7 +3,7 @@
 #ifdef TEST
   #define DISPLAY_INTERVAL 300
 #else
-  #define TEST false
+  //#define TEST false
   #define DISPLAY_INTERVAL 5
 #endif
 
@@ -11,12 +11,17 @@
 #define SEGMENTS 7
 #define DIGITS 4
 
-#define SECONDS_PER_HOUR 3600
-#define SECONDS_PER_MINUTE 60
-#define SECONDS_PER_DAY 86400000 //3600 * 24
+#define TIME_PARTS 6
 
-#define START_HOUR 05
-#define START_MINUTE 46
+#define MAX_UNSIGNED_LONG 4294967295UL
+
+#define SECONDS_PER_HOUR 3600UL
+#define SECONDS_PER_MINUTE 60UL
+#define SECONDS_PER_DAY 86400UL //3600 * 24
+#define MILLIS_PER_MINUTE 60000UL
+
+#define START_HOUR 17
+#define START_MINUTE 14
 #define START_SECOND 15
 
                          //a, b, c, d, e,  f,  g
@@ -89,13 +94,14 @@ void setup() {
 }
 
 
-int crtTime[DIGITS] = {0, 0, 0, 0};
+int crtTime[TIME_PARTS] = {0, 0, 0, 0, 0, 0};
 unsigned long previousMillis = 0;
 
 int crtDigit = 0;
 int crtLed = 0;
 
-unsigned long allMillis = (unsigned long)(START_HOUR * SECONDS_PER_HOUR + START_MINUTE * SECONDS_PER_MINUTE + START_SECOND) * 1000;
+unsigned long passedMillis = 0;
+unsigned long secondsCount = 0;
 unsigned long prevMillis = millis();
 
 void updateTime(unsigned long currentTime) {
@@ -112,34 +118,58 @@ void updateTime(unsigned long currentTime) {
   crtTime[4] = (seconds / 10) % 10;
   crtTime[5] = seconds % 10;
 }
-  }
-}
+
+
+#ifdef TEST
 
 void loop() {
   unsigned long currentMillis  = millis();
-  
-  if(TEST) {
-    showLedAtIndexOnDigitAtIndex(crtLed, crtDigit);
+  showLedAtIndexOnDigitAtIndex(crtLed, crtDigit);
+  if(currentMillis - previousMillis > DISPLAY_INTERVAL) {
+    // save the last time 
+    previousMillis = currentMillis;
+    crtLed = (crtLed + 1) % SEGMENTS;
+    if(crtLed == 0) {
+      crtDigit = (crtDigit + 1) % DIGITS ;
+    }
+  }
+}
+
+#else
+
+unsigned long leftOverMillis = 0;
+void loop() {
+  unsigned long currentMillis  = millis();
+
+
+  if(secondsCount == 0) {
+    secondsCount = (unsigned long) START_HOUR * SECONDS_PER_HOUR + (unsigned long) START_MINUTE * SECONDS_PER_MINUTE + START_SECOND;
+    updateTime(secondsCount);
+  }
+  //prevent over roll
+  if(prevMillis > currentMillis) {
+    passedMillis = currentMillis + (unsigned long) MAX_UNSIGNED_LONG - prevMillis;
   } else {
-    allMillis += currentMillis - prevMillis;
-    //prevent over roll
-    allMillis = (unsigned long)allMillis % SECONDS_PER_DAY;
+    passedMillis = currentMillis - prevMillis;
+  }
+  passedMillis = passedMillis + leftOverMillis;
+  if(passedMillis > 1000) {
+    secondsCount = secondsCount + (unsigned long) passedMillis / 1000;
+    if (secondsCount > SECONDS_PER_DAY) {
+      secondsCount = secondsCount % SECONDS_PER_DAY;
+    }
+    updateTime(secondsCount);
     prevMillis = currentMillis;
-    updateTime(allMillis);
+    leftOverMillis = (unsigned long) passedMillis % 1000;
   }
 
   if(currentMillis - previousMillis > DISPLAY_INTERVAL) {
     // save the last time 
     previousMillis = currentMillis;
-    if(TEST) {
-      crtLed = (crtLed + 1) % SEGMENTS;
-      if(crtLed == 0) {
-        crtDigit = (crtDigit + 1) % DIGITS ;
-      }
-    } else {
-      //show each number for interval time on the right digit
-      showNumber(crtDigit, crtTime[crtDigit]);
-      crtDigit = (crtDigit + 1) % DIGITS;
-    }
+    //show each number for interval time on the right digit
+    showNumber(crtDigit, crtTime[crtDigit]);
+    crtDigit = (crtDigit + 1) % DIGITS;
   }
 }
+
+#endif

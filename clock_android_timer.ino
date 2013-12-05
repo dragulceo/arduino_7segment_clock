@@ -24,10 +24,12 @@
 #define START_MINUTE 14
 #define START_SECOND 15
 
+//Configure pins as connected to the 7 segment chip
                          //a, b, c, d, e,  f,  g
 int LED7_PINS[SEGMENTS] = {9, 7, 10, 5, 6, 8, 11};
 int DIGIT_PINS[DIGITS] = {1, 2, 3, 4};
 
+//7 segments representation
 int LIGHTS[NUMBERS][SEGMENTS] = {
   //   a
   // f   b
@@ -48,7 +50,7 @@ int LIGHTS[NUMBERS][SEGMENTS] = {
   {HIGH, HIGH, HIGH,  LOW,  LOW, HIGH, HIGH}  //9
 };
 
-
+//Enable one of the 4 x 7 segments digit
 void showDigit(int digitIndex) {
   int i;
   int value;
@@ -62,6 +64,7 @@ void showDigit(int digitIndex) {
   }
 }
 
+//Turn on the leds accorgin to the number represented
 void showNumber(int digitIndex, int number) {
   //activate digit
   int *lights = LIGHTS[number];
@@ -71,6 +74,7 @@ void showNumber(int digitIndex, int number) {
   }
 }
 
+//Turn on a led in a digit
 void showLedAtIndexOnDigitAtIndex(int ledIndex, int digitIndex) {
   int i;
   showDigit(digitIndex);
@@ -83,6 +87,7 @@ void showLedAtIndexOnDigitAtIndex(int ledIndex, int digitIndex) {
   }
 }
 
+
 void setup() {
   int i;
   for(i = 0; i < DIGITS; i++) {
@@ -92,7 +97,6 @@ void setup() {
     pinMode(LED7_PINS[i], OUTPUT);
   }
 }
-
 
 int crtTime[TIME_PARTS] = {0, 0, 0, 0, 0, 0};
 unsigned long previousMillis = 0;
